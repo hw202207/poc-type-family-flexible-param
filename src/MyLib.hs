@@ -13,6 +13,7 @@ data Foo = Foo
 data Bar = Bar
 
 instance HasTokenRequest Foo where
+    -- Foo request a AuthCode (String type)
     type AuthCode Foo = String
 
     data TokenRequestParam Foo = FooTokenRequestParam
@@ -29,6 +30,8 @@ instance HasTokenRequest Foo where
             }
 
 instance HasTokenRequest Bar where
+    -- Bar doesn't need AuthCode at all.
+    -- I regard use '()' type as work around
     type AuthCode Bar = ()
 
     data TokenRequestParam Bar = BarTokenRequestParam
