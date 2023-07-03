@@ -7,7 +7,9 @@ class HasTokenRequest a where
     type AuthCode a
     data TokenRequestParam a
 
-    mkTokenRequestParam :: AuthCode a -> TokenRequestParam a
+    mkTokenRequestParam :: a -> AuthCode a -> TokenRequestParam a
+
+    toRequestString :: TokenRequestParam a -> String
 
 data Foo = Foo
 data Bar = Bar
@@ -22,12 +24,14 @@ instance HasTokenRequest Foo where
         }
         deriving stock (Show)
 
-    mkTokenRequestParam :: String -> TokenRequestParam Foo
-    mkTokenRequestParam code =
+    mkTokenRequestParam :: Foo -> String -> TokenRequestParam Foo
+    mkTokenRequestParam _ code =
         FooTokenRequestParam
             { fooAge = 12
             , authCode = code
             }
+    toRequestString :: TokenRequestParam Foo -> String
+    toRequestString = show
 
 instance HasTokenRequest Bar where
     -- Bar doesn't need AuthCode at all.
@@ -40,16 +44,20 @@ instance HasTokenRequest Bar where
         }
         deriving stock (Show)
 
-    mkTokenRequestParam :: () -> TokenRequestParam Bar
-    mkTokenRequestParam _ =
+    mkTokenRequestParam :: Bar -> () -> TokenRequestParam Bar
+    mkTokenRequestParam _ _ =
         BarTokenRequestParam
             { barUserName = "login@test.com"
             , barPassword = "12345"
             }
+    toRequestString :: TokenRequestParam Bar -> String
+    toRequestString = show
 
 conduitTokenRequest ::
     (HasTokenRequest a) =>
+    a ->
     AuthCode a ->
-    IO (TokenRequestParam a)
-conduitTokenRequest ac = do
-    pure (mkTokenRequestParam ac)
+    IO String
+conduitTokenRequest a ac = do
+    -- There will be many logic here under IO computation
+    pure (toRequestString $ mkTokenRequestParam a ac)
