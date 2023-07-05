@@ -33,10 +33,12 @@ instance HasTokenRequest Foo where
     toRequestString :: TokenRequestParam Foo -> String
     toRequestString = show
 
+data NoAuthCode = NoAuthCode
+
 instance HasTokenRequest Bar where
     -- Bar doesn't need AuthCode at all.
     -- I regard use '()' type as work around
-    type AuthCode Bar = ()
+    type AuthCode Bar = NoAuthCode
 
     data TokenRequestParam Bar = BarTokenRequestParam
         { barUserName :: String
@@ -44,7 +46,7 @@ instance HasTokenRequest Bar where
         }
         deriving stock (Show)
 
-    mkTokenRequestParam :: Bar -> () -> TokenRequestParam Bar
+    mkTokenRequestParam :: Bar -> NoAuthCode -> TokenRequestParam Bar
     mkTokenRequestParam _ _ =
         BarTokenRequestParam
             { barUserName = "login@test.com"
